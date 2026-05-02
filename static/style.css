@@ -1,15 +1,107 @@
+:root{
+    --bg: #0b1020;
+    --card: rgba(255,255,255,.10);
+    --cardBorder: rgba(255,255,255,.16);
+    --text: rgba(255,255,255,.92);
+    --muted: rgba(255,255,255,.72);
+    --shadow: 0 20px 60px rgba(0,0,0,.45);
+
+    --bot: rgba(255,255,255,.14);
+    --user: linear-gradient(135deg, #6d5efc, #a855f7);
+    --input: rgba(255,255,255,.12);
+
+    --radius: 18px;
+
+    /* Left robot "panel" sizing */
+    /* Slightly smaller so chat stays visually centered */
+    --robot-w: clamp(360px, 34vw, 560px);
+    --robot-h: 100vh;
+}
+
+*{ box-sizing: border-box; }
+
 body { 
-    font-family: Arial, sans-serif; 
-    background-image: url(ai.png); 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; 
     margin: 0; 
-    width: 100vw; 
-    height: 100vh; 
+    min-height: 100vh;
+    color: var(--text);
+
+    /* Lively "running AI" background (no ai.png) */
+    background:
+        radial-gradient(900px 700px at 16% 20%, rgba(109,94,252,.26), transparent 58%),
+        radial-gradient(900px 700px at 86% 22%, rgba(168,85,247,.20), transparent 60%),
+        radial-gradient(1100px 820px at 50% 110%, rgba(56,189,248,.12), transparent 55%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 56px),
+        repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, transparent 1px 52px),
+        linear-gradient(180deg, rgba(11,16,32,.92), rgba(11,16,32,.86));
+    background-size: auto, auto, auto, 420px 420px, 420px 420px, auto;
+    background-position: 0% 0%, 100% 0%, 50% 100%, 0 0, 0 0, 0 0;
+    animation: bgShift 14s ease-in-out infinite alternate, gridDrift 22s linear infinite;
+
+    display: grid; 
+    place-items: center; 
+    /* Keep chat centered */
+    padding: 24px;
+}
+
+/* Floating "data particles" overlay */
+body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(6px 6px at 12% 18%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(5px 5px at 28% 62%, rgba(109,94,252,.35), transparent 60%),
+        radial-gradient(4px 4px at 72% 28%, rgba(168,85,247,.32), transparent 60%),
+        radial-gradient(6px 6px at 84% 68%, rgba(56,189,248,.28), transparent 60%),
+        radial-gradient(700px 520px at 55% 40%, rgba(255,255,255,.06), transparent 60%);
+    opacity: .95;
+    animation: particles 10s ease-in-out infinite alternate;
+}
+
+/* Subtle “alive” motion (no distracting fast movement) */
+@keyframes bgShift{
+    0% { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0, 0 0, 0 0; }
+    100% { background-position: 10% 10%, 92% 14%, 50% 98%, 0 0, 0 0, 0 0; }
+}
+
+@keyframes gridDrift{
+    0% { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0, 0 0, 0 0; }
+    100% { background-position: 0% 0%, 100% 0%, 50% 100%, 420px 0, 0 420px, 0 0; }
+}
+
+@keyframes particles{
+    0% { transform: translate3d(0,0,0); filter: blur(0px); }
+    100% { transform: translate3d(0,-10px,0); filter: blur(.2px); }
+}
+
+/* Robot standing on the left side (inline SVG, no external image files) */
+body::after{
+    content: "";
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--robot-w);
+    height: var(--robot-h);
+    z-index: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    /* Crisp + slightly smaller */
+    background-size: 84% auto;
+    background-position: center 80%;
+    opacity: .92;
+    filter: drop-shadow(0 24px 40px rgba(0,0,0,.55)) saturate(1.05) contrast(1.06);
+    animation: robotFloat 3.8s ease-in-out infinite;
+    background-image: url("ai-removebg-preview.png");
+}
+
+@keyframes robotFloat{
+    0% { transform: translate3d(0,0,0); }
+    50% { transform: translate3d(0,-10px,0); }
+    100% { transform: translate3d(0,0,0); }
 }
 /* Typing Indicator */
 .typing {
@@ -19,7 +111,8 @@ body {
     gap: 3px;
     padding: 10px;
     border-radius: 10px;
-    background: #f1f1f1;
+    background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.12);
     width: 50px;
 }
 
@@ -27,7 +120,7 @@ body {
 .typing span {
     width: 8px;
     height: 8px;
-    background: gray;
+    background: rgba(255,255,255,.75);
     border-radius: 50%;
     display: inline-block;
     animation: typing 1.5s infinite ease-in-out;
@@ -46,87 +139,154 @@ body {
 }
 
 .chat-container { 
-    width: 450px; 
-    background: rgb(102, 100, 100); 
-    border-radius: 15px; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-    padding: 15px; 
+    width: min(520px, 100%); 
+    height: min(78vh, 640px);
+    background: var(--card); 
+    border-radius: var(--radius); 
+    border: 1px solid var(--cardBorder);
+    box-shadow: var(--shadow); 
+    padding: 0; 
     display: flex; 
     flex-direction: column; 
-    margin-left: 25%; 
-    height: 450px; 
-    position: relative; 
+    margin: 0; 
+    position: relative;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    overflow: hidden;
+    z-index: 1; /* stay above background highlight */
 }
 
 .chat-header { 
-    background: #0a0a3e; 
-    color: white; 
+    background: linear-gradient(135deg, rgba(109,94,252,.55), rgba(168,85,247,.35));
+    color: var(--text); 
     text-align: center; 
-    padding: 15px; 
-    font-weight: bold; 
-    border-radius: 10px 10px 10px 10px; 
+    padding: 14px 16px; 
+    font-weight: 700;
+    letter-spacing: .2px;
+    border-bottom: 1px solid rgba(255,255,255,.14);
 }
 
 .chat-box { 
     flex: 1;
-    max-height: 350px; 
     overflow-y: auto; 
     display: flex; 
     flex-direction: column; 
-    padding: 10px; 
+    padding: 16px 14px 10px; 
+    gap: 10px;
     scrollbar-width: thin; 
-    scrollbar-color: #f1f1f1; 
+    scrollbar-color: rgba(255,255,255,.22) transparent;
+    scroll-behavior: smooth;
 }
 
-.chat-box::-webkit-scrollbar { width: 8px; } 
-.chat-box::-webkit-scrollbar-track { background: #f1f1f1; } 
-.chat-box::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; } 
-.chat-box::-webkit-scrollbar-thumb:hover { background: #555; }
+.chat-box::-webkit-scrollbar { width: 10px; } 
+.chat-box::-webkit-scrollbar-track { background: transparent; } 
+.chat-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; } 
+.chat-box::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.26); }
+
+.user-message,
+.bot-message{
+    max-width: 78%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    line-height: 1.35;
+    box-shadow: 0 6px 18px rgba(0,0,0,.20);
+    border: 1px solid rgba(255,255,255,.10);
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
 
 /* User Message */
 .user-message { 
     align-self: flex-end; 
-    background-color: #4d3f75; /* Purple */ 
-    color: white; 
-    padding: 10px; 
-    border-radius: 10px; 
-    margin: 5px; 
-    max-width: 60%; 
+    background: var(--user);
+    color: #fff; 
+    margin: 0; 
     text-align: right; 
+    border-top-right-radius: 8px;
 }
 
 /* Bot Message */
 .bot-message { 
     align-self: flex-start; 
-    background-color: #f1f1f1; /* Light Gray */ 
-    color: black; 
-    padding: 10px; 
-    border-radius: 10px; 
-    margin: 5px; 
-    max-width: 60%; 
+    background: var(--bot);
+    color: var(--text);
+    margin: 0; 
     text-align: left; 
+    border-top-left-radius: 8px;
 }
 
 .input-area { 
-    display: flex; 
-    gap: 10px; 
-    margin-top: 10px; 
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(0,0,0,.18);
+    border-top: 1px solid rgba(255,255,255,.14);
 }
 
 input { 
     flex: 1; 
-    padding: 10px; 
-    border: 1px solid #ddd; 
-    border-radius: 5px; 
+    width: 100%;
+    padding: 12px 12px; 
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px; 
+    background: var(--input);
+    color: var(--text);
+    outline: none;
+}
+
+input::placeholder{ color: rgba(255,255,255,.55); }
+
+input:focus-visible{
+    border-color: rgba(109,94,252,.65);
+    box-shadow: 0 0 0 4px rgba(109,94,252,.25);
 }
 
 button { 
-    padding: 10px; 
-    background:#0a0a3e; 
-    color: white; 
-    border: none; 
-    border-radius: 5px; 
-    cursor: pointer; 
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.10);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform .06s ease, background .18s ease, border-color .18s ease;
+    user-select: none;
 }
 
-button:hover { background: #2020be; }
+button:hover{
+    background: rgba(255,255,255,.16);
+    border-color: rgba(255,255,255,.22);
+}
+
+button:active{ transform: translateY(1px); }
+
+button:focus-visible{
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(168,85,247,.22);
+}
+
+/* Primary "Send" button */
+.input-area button:first-of-type{
+    background: linear-gradient(135deg, rgba(109,94,252,.9), rgba(168,85,247,.85));
+    border-color: rgba(255,255,255,.18);
+    color: #fff;
+}
+
+button.material-symbols-outlined{
+    font-variation-settings: "FILL" 1, "wght" 500, "opsz" 24;
+    width: 44px;
+    padding: 10px 0;
+    text-align: center;
+}
+
+@media (max-width: 480px){
+    body{ padding: 12px; }
+    .chat-container{ height: 84vh; }
+    .user-message, .bot-message{ max-width: 86%; }
+}
+
+@media (max-width: 860px){
+    /* Hide robot on small layouts so UI stays clean */
+    body::after{ opacity: 0; }
+    body{ padding: 12px; }
+}
